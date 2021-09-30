@@ -42,8 +42,8 @@ if args.priv_key_size:
 img_filename = args.image
 
 SCRIPT_INSTALL_DEPS_PACKAGES = """
-sudo pacman -Syu
-sudo pacman -S cryptsetup wipe python3 openssl rsync
+sudo apt update -y && sudo apt upgrade -y && sudo autoremove -y
+sudo apt install -y cryptsetup wipe python3 openssl rsync
 """
 
 if args.install_deps:
