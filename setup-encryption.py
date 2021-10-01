@@ -51,9 +51,9 @@ if args.install_deps:
 
 SCRIPT_CREATE_DISK_LUKS_IMG = """
 sudo dd if=/dev/zero of={src_dir_img}{image_filename}.img bs=1G count={size_disk_G} iflag=fullblock status=progress
-sudo openssl genrsa -out {image_filename}.priv {priv_key_size}
-sudo cryptsetup luksFormat --cipher aes-xts-plain64 --key-size {key_size} --key-file {image_filename}.priv --hash sha512 --iter-time 7000 {src_dir_img}{image_filename}.img
-sudo cryptsetup luksOpen --key-file {image_filename}.priv {src_dir_img}{image_filename}.img crypt-home
+sudo openssl genrsa -out /etc/{image_filename}.priv {priv_key_size}
+sudo cryptsetup luksFormat --cipher aes-xts-plain64 --key-size {key_size} --key-file /etc/{image_filename}.priv --hash sha512 --iter-time 7000 {src_dir_img}{image_filename}.img
+sudo cryptsetup luksOpen --key-file /etc/{image_filename}.priv {src_dir_img}{image_filename}.img crypt-home
 sudo mkfs.ext4 /dev/mapper/crypt-home
 sudo mkdir -p /mnt/crypt-home
 sudo mount /dev/mapper/crypt-home /mnt/crypt-home
@@ -68,7 +68,7 @@ sudo mount /dev/mapper/crypt-home /mnt/crypt-home
 system(SCRIPT_CREATE_DISK_LUKS_IMG)
 
 # APPEND INSERT THE CRYPTTAB AND FSTAB CONFIG TO AUTOMOUNT
-CONFIG_LINE_CRYPTTAB = "\n{}\n".format("\ncrypt-home          {src_dir_img}{image_filename}.img        {image_filename}.priv\n".format(
+CONFIG_LINE_CRYPTTAB = "\n{}\n".format("\ncrypt-home          {src_dir_img}{image_filename}.img        /etc/{image_filename}.priv\n".format(
         image_filename = img_filename,
         src_dir_img = src_dir_img
 ))
@@ -90,7 +90,7 @@ with open("/etc/fstab", 'a') as f:
 SCRIPT_SETUP_HOME_TO_ENCRYPTED = """
 sudo rsync -arpP /home /mnt/crypt-home/
 sudo rm -rf /home
-sudo ln -s /mnt/crypt-home/home /home
+sudo ln -s /mnt/crypt-home/home/ /home
 """
 
 system(SCRIPT_SETUP_HOME_TO_ENCRYPTED)
